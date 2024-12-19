@@ -3,7 +3,7 @@
 ## Overview
 A microservice driven implementation for transforming PDFs into engaging audio content. For a deeper dive into the system architecture, please see the diagram below:
 
-You can view a mermaid diagram of our system [here](docs/README.md).
+You can view a mermaid diagram of our system [here](docs/README.md). 
 
 ## Quick Start Guide
 
