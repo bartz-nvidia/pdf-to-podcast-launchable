@@ -20,10 +20,10 @@ def validate_service_url(url: str) -> bool:
         parsed = urlparse(url)
         host = parsed.hostname
         port = parsed.port or (443 if parsed.scheme == "https" else 80)
-        
+
         if not host or not port:
             return False
-            
+
         return host in ALLOWED_HOSTS and port in ALLOWED_PORTS
     except Exception:
         return False
@@ -209,9 +209,11 @@ def test_health_endpoint():
 def main():
     """Main entry point for the test script"""
     if not validate_service_url(PDF_SERVICE_URL):
-        print(f"Error: Invalid service URL. Must be one of the allowed hosts: {ALLOWED_HOSTS}")
+        print(
+            f"Error: Invalid service URL. Must be one of the allowed hosts: {ALLOWED_HOSTS}"
+        )
         sys.exit(1)
-        
+
     if len(sys.argv) < 2:
         print("Usage: python test_api.py <path_to_pdf_file1> [path_to_pdf_file2 ...]")
         sys.exit(1)
