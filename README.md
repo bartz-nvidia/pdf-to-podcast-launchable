@@ -15,7 +15,7 @@ This NVIDIA AI blueprint shows developers how to build a microservice that trans
    ```bash
    # Create .env file with required variables
    echo "ELEVENLABS_API_KEY=your_key" > .env
-   echo "NIM_KEY=your_key" >> .env
+   echo "NVIDIA_API_KEY=your_key" >> .env
    echo "MAX_CONCURRENT_REQUESTS=1" >> .env
    ```
 

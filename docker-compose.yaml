@@ -53,7 +53,7 @@ services:
     ports:
       - "8964:8964"
     environment:
-      - NIM_KEY=${NIM_KEY}
+      - NVIDIA_API_KEY=${NVIDIA_API_KEY}
       - REDIS_URL=redis://redis:6379
       - MODEL_CONFIG_PATH=/app/config/models.json
     volumes:

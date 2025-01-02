@@ -18,7 +18,7 @@ jobs:
       - name: Create .env file
         run: |
           echo "ELEVENLABS_API_KEY=${{ secrets.ELEVENLABS_API_KEY }}" > .env
-          echo "NIM_KEY=${{ secrets.NIM_KEY }}" >> .env
+          echo "NVIDIA_API_KEY=${{ secrets.NVIDIA_API_KEY }}" >> .env
           echo "MAX_CONCURRENT_REQUESTS=10" >> .env
 
       - name: Start services in detached mode

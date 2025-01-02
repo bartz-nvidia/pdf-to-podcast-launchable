@@ -54,7 +54,7 @@ async def process_transcription(job_id: str, request: TranscriptionRequest):
     with telemetry.tracer.start_as_current_span("agent.process_transcription") as span:
         try:
             llm_manager = LLMManager(
-                api_key=os.getenv("NIM_KEY"),
+                api_key=os.getenv("NVIDIA_API_KEY"),
                 telemetry=telemetry,
                 config_path=os.getenv("MODEL_CONFIG_PATH"),
             )

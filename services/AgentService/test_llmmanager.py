@@ -23,7 +23,7 @@ async def test_basic_queries():
     """Test both sync and async basic queries"""
     print("\n=== Testing Basic Queries ===")
 
-    manager = LLMManager(api_key=os.getenv("NIM_KEY"), telemetry=mock_telemetry)
+    manager = LLMManager(api_key=os.getenv("NVIDIA_API_KEY"), telemetry=mock_telemetry)
 
     # Test sync query
     print("\nTesting sync query...")
@@ -58,7 +58,7 @@ async def test_parallel_processing():
     """Test processing multiple queries in parallel"""
     print("\n=== Testing Parallel Processing ===")
 
-    manager = LLMManager(api_key=os.getenv("NIM_KEY"), telemetry=mock_telemetry)
+    manager = LLMManager(api_key=os.getenv("NVIDIA_API_KEY"), telemetry=mock_telemetry)
 
     questions = ["What is Python?", "What is JavaScript?", "What is Rust?"]
 
@@ -84,7 +84,7 @@ async def test_json_schema():
     """Test JSON schema structured output"""
     print("\n=== Testing JSON Schema ===")
 
-    manager = LLMManager(api_key=os.getenv("NIM_KEY"), telemetry=mock_telemetry)
+    manager = LLMManager(api_key=os.getenv("NVIDIA_API_KEY"), telemetry=mock_telemetry)
 
     # Define a schema for a person's details
     schema = {
@@ -114,7 +114,7 @@ async def test_streaming():
     """Test both sync and async streaming"""
     print("\n=== Testing Streaming ===")
 
-    manager = LLMManager(api_key=os.getenv("NIM_KEY"), telemetry=mock_telemetry)
+    manager = LLMManager(api_key=os.getenv("NVIDIA_API_KEY"), telemetry=mock_telemetry)
 
     # Test sync streaming
     print("\nTesting sync streaming...")
@@ -149,7 +149,7 @@ async def test_json_streaming():
     """Test JSON schema structured output with streaming"""
     print("\n=== Testing JSON Streaming ===")
 
-    manager = LLMManager(api_key=os.getenv("NIM_KEY"), telemetry=mock_telemetry)
+    manager = LLMManager(api_key=os.getenv("NVIDIA_API_KEY"), telemetry=mock_telemetry)
 
     # Define a simpler schema
     schema = {
@@ -216,8 +216,8 @@ async def main_test():
 
 
 if __name__ == "__main__":
-    # Ensure NIM_KEY is set
-    if not os.getenv("NIM_KEY"):
-        print("Error: NIM_KEY environment variable not set")
+    # Ensure NVIDIA_API_KEY is set
+    if not os.getenv("NVIDIA_API_KEY"):
+        print("Error: NVIDIA_API_KEY environment variable not set")
     else:
         asyncio.run(main_test())
