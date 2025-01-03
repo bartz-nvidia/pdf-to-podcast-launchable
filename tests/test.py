@@ -9,9 +9,16 @@ import asyncio
 from urllib.parse import urljoin
 import argparse
 from typing import List
+import uuid
+import random
+from langchain_nvidia_ai_endpoints import ChatNVIDIA
+from pathlib import Path
 
 # Add global TEST_USER_ID
 TEST_USER_ID = "test-userid"
+
+# Add at top of file after imports
+SPEAKER_NAMES = ["Bob", "Kate", "Alex", "Sarah", "Mike"]
 
 
 class StatusMonitor:
@@ -217,10 +224,46 @@ def test_saved_podcasts(base_url: str, job_id: str, max_retries=5, retry_delay=5
     print(f"Successfully retrieved audio data, size: {len(audio_data)} bytes")
 
 
+def test_nvidia_api_key():
+    api_key = os.getenv("NVIDIA_API_KEY")
+    if not api_key:
+        raise ValueError("NVIDIA_API_KEY needs to be set")
+    config_path = Path("./models.json")
+    if config_path.exists():
+        with config_path.open() as f:
+            configs = json.load(f)
+    else:
+        raise ValueError(f"model config at path {config_path} does not exist")
+
+    for model_type in ["reasoning", "json", "iteration"]:
+        model = configs[model_type]
+        llm = ChatNVIDIA(
+            model=model["name"],
+            base_url=model["api_base"],
+            nvidia_api_key=api_key,
+            max_tokens=100,
+        )
+        response = llm.invoke(
+            [
+                {
+                    "role": "user",
+                    "content": "What is the capital of France? Be brief",
+                }
+            ],
+        )
+        if "paris" not in response.content.lower():
+            print(f"Response {response.content} did not contain expected answer Paris")
+
+    print("Successfully validated all models with NVIDIA_API_KEY")
+
+
 def test_api(
     base_url: str,
+    name: str,
     target_files: List[str],
     context_files: List[str],
+    speaker_1_name: str = None,
+    speaker_2_name: str = None,
     monologue: bool = False,
     vdb: bool = False,
 ):
@@ -231,18 +274,19 @@ def test_api(
     if not monologue:
         voice_mapping["speaker-2"] = "9BWtsMINqrJLrRacOk9x"
 
-    process_url = f"{base_url}/process_pdf"
+    # Get random names if not provided
+    if speaker_1_name is None:
+        speaker_1_name = random.choice(SPEAKER_NAMES)
+    if speaker_2_name is None and not monologue:
+        # Ensure second speaker is different from first
+        available_names = [name for name in SPEAKER_NAMES if name != speaker_1_name]
+        speaker_2_name = random.choice(available_names)
 
-    # Update path resolution
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    project_root = os.path.dirname(current_dir)
-    samples_dir = os.path.join(project_root, "samples")
-
-    # Prepare the payload with updated schema and userId
+    # Update transcription params
     transcription_params = {
-        "name": "ishan-test",
+        "name": name,
         "duration": 5,
-        "speaker_1_name": "Bob",
+        "speaker_1_name": speaker_1_name,
         "voice_mapping": voice_mapping,
         "guide": None,
         "monologue": monologue,
@@ -251,7 +295,14 @@ def test_api(
     }
 
     if not monologue:
-        transcription_params["speaker_2_name"] = "Kate"
+        transcription_params["speaker_2_name"] = speaker_2_name
+
+    process_url = f"{base_url}/process_pdf"
+
+    # Update path resolution
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    project_root = os.path.dirname(current_dir)
+    samples_dir = os.path.join(project_root, "samples")
 
     print(
         f"\n[{datetime.now().strftime('%H:%M:%S')}] Submitting PDFs for processing..."
@@ -322,7 +373,7 @@ def test_api(
             audio_content = get_output_with_retry(base_url, job_id)
 
             # Save the audio file
-            output_path = os.path.join(current_dir, "output.mp3")
+            output_path = os.path.join(current_dir, f"{name}.mp3")
             with open(output_path, "wb") as f:
                 f.write(audio_content)
             print(
@@ -371,7 +422,11 @@ if __name__ == "__main__":
         python test.py --target target1.pdf target2.pdf --context context1.pdf
         """,
     )
-
+    parser.add_argument(
+        "--name",
+        default=str(uuid.uuid4()),
+        help="Name of the generated podcast",
+    )
     parser.add_argument(
         "--target",
         nargs="+",
@@ -401,6 +456,14 @@ if __name__ == "__main__":
         action="store_true",
         help="Enable Vector Database processing",
     )
+    parser.add_argument(
+        "--speaker1",
+        help=f"Name for speaker 1 (default: random from {SPEAKER_NAMES})",
+    )
+    parser.add_argument(
+        "--speaker2",
+        help=f"Name for speaker 2 (default: random from {SPEAKER_NAMES})",
+    )
 
     args = parser.parse_args()
 
@@ -417,10 +480,15 @@ if __name__ == "__main__":
     print(f"VDB mode: {args.vdb}")
     print(f"Using test user ID: {TEST_USER_ID}")
 
+    test_nvidia_api_key()
+
     test_api(
         args.api_url,
+        args.name,
         args.target,
         args.context,
-        args.monologue,
-        args.vdb,
+        speaker_1_name=args.speaker1,
+        speaker_2_name=args.speaker2,
+        monologue=args.monologue,
+        vdb=args.vdb,
     )

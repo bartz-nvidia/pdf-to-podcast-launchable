@@ -5,10 +5,10 @@ set -e
 # Install uv if not already installed
 if ! command -v uv &> /dev/null; then
     curl -LsSf https://astral.sh/uv/install.sh | sh
-fi
 
-# Add uv to path
-source $HOME/.local/bin/env
+    # Add uv to path
+    source $HOME/.local/bin/env
+fi
 
 # Create a new virtual environment
 uv venv
